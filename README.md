@@ -16,3 +16,12 @@ Nesse projeto agt tem que fazer um robo chegar num lugar? Acho.
 *	Seu robo deve começar a se mover
 
 ### Começando a codar
+#### Rodando um exemplo Java
+*	Abra o MobileSim
+*	Rode um mapa
+*	Vá na pasta java/examples pelo terminal
+*	javac -classpath ../java/Aria.jar simple.java
+*	ubuntu  :    java -cp ../java/Aria.jar:. simple
+*	windows :    java -cp ../java/Aria.jar;. simple
+
+
