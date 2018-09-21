@@ -10,7 +10,7 @@ public class TantBug {
       System.exit(1);
     }
   }
-
+ 
   public static void main(String argv[]) {
     System.out.println("Starting TantBug Algorithm");
 
@@ -53,6 +53,7 @@ public class TantBug {
     double[] thout = {0};
     p.getPose(xout, yout, thout);
     System.out.println("              pose.getPose(): x=" + xout[0] + ", y=" + yout[0] + ", th=" + thout[0]);
+    robot.getPose();
     robot.unlock();
     robot.lock();
     System.out.println("exiting.");

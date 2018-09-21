@@ -11,24 +11,44 @@ public class TantBug {
     }
   }
 
-  public static void main(String argv[]) {
+
+  public static void getPose(ArRobot robot){
+    System.out.println("Robot coords: robot.getX()=" + 
+    robot.getX() + ", robot.getY()=" + robot.getY() +
+     ", robot.getTh()=" + robot.getTh()); 
+  }
+
+  public static boolean checkParseArgs(){
+      if(!Aria.parseArgs()){
+        Aria.logOptions();
+        Aria.exit(1);
+        return false;
+      }
+      return true;
+  }
+
+  public static boolean connect(ArSimpleConnector conn, ArRobot robot){
+      if (!conn.connectRobot(robot)){
+        System.err.println("Could not connect to robot, exiting.\n");
+        System.exit(1);
+        return false;
+      }
+    return true;
+  }
+
+  public static void main(String[] argv) {
     System.out.println("Starting TantBug Algorithm");
+
+    int finalX = argv[0];
+    int finalY = argv[1];
 
     Aria.init();
 
     ArRobot robot = new ArRobot();
     ArSimpleConnector conn = new ArSimpleConnector(argv);
- 
-    if(!Aria.parseArgs())
-    {
-      Aria.logOptions();
-      Aria.exit(1);
-    }
 
-    if (!conn.connectRobot(robot))
-    {
-      System.err.println("Could not connect to robot, exiting.\n");
-      System.exit(1);
+    if(!checkParseArgs || !connect(conn, robot)){
+      return;
     }
     robot.runAsync(true);
     robot.lock();
@@ -45,14 +65,12 @@ public class TantBug {
     System.out.println("Sleeping for 5 seconds...");
     ArUtil.sleep(5000);
     robot.lock();
-    System.out.println("Robot coords: robot.getX()=" + robot.getX() + ", robot.getY()=" + robot.getY() + ", robot.getTh()=" + robot.getTh()); 
+    getPose(robot); 
     ArPose p = robot.getPose();
-    System.out.println("               pose.getX()=" + p.getX() +     ", pose.getY()="  + p.getY() +     ",  pose.getTh()=" + p.getTh());
     double[] xout = {0};
     double[] yout = {0};
     double[] thout = {0};
     p.getPose(xout, yout, thout);
-    System.out.println("              pose.getPose(): x=" + xout[0] + ", y=" + yout[0] + ", th=" + thout[0]);
     robot.unlock();
     robot.lock();
     System.out.println("exiting.");
