@@ -11,7 +11,7 @@ outside this range, the robot will not be able to recognize them.
 
 | ![](./img/Fig213.png) |
 |:--:|
-| *Fig. 2.13. Obstacle recognition with the help of limited-range sensors. *|
+| *Fig. 2.13. Obstacle recognition with the help of limited-range sensors.* |
 
 | ![](./img/Fig214.png) |
 |:--:|
@@ -24,4 +24,6 @@ Move towards the target until sensors sense an object between itself and the tar
 After that,move towards discontinuity points of e1 or e2. The principle that robot meets to choose one of these two points, is shortening the path to the target. For example, in Fig. 2-15 the robot chooses its path based on this algorithm so that the amount ![](./img/formula.png) is achieved.
 
 | ![](./img/Fig215Fig216.png) |
-
+|:--:|
+| *Fig. 2.15 Robot's movment towards discontinuity points. (Left)* |
+| *Fig. 2.16. The start point, target point and two discontinuity points. (Right)* |
