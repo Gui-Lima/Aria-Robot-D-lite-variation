@@ -2,6 +2,11 @@ import com.mobilerobots.Aria.*;
 
 public class TantBug {
 
+  enum tile {
+      WALL
+  };
+
+  // Carrega a biblioteca que precisa para rodar
   static {
     try {
         System.loadLibrary("AriaJava");
@@ -11,13 +16,28 @@ public class TantBug {
     }
   }
 
+  public static void getCenterXY(ArRobot robot){
 
+      return;
+  }
+
+  // Pega a posição do robo
   public static void getPose(ArRobot robot){
     System.out.println("Robot coords: robot.getX()=" + 
     robot.getX() + ", robot.getY()=" + robot.getY() +
      ", robot.getTh()=" + robot.getTh()); 
   }
 
+  // Utility function not not keep sleeping everytime
+  public static void wait(ArRobot robot){
+    ArUtil.sleep(500);
+    while(!robot.isStopped()){
+      ArUtil.sleep(500);
+    }
+    return;
+  }
+
+  // Checa se você mandou argumentos pro Aria
   public static boolean checkParseArgs(){
       if(!Aria.parseArgs()){
         Aria.logOptions();
@@ -27,6 +47,7 @@ public class TantBug {
       return true;
   }
 
+  // Conecta o robo para mandar os comandos
   public static boolean connect(ArSimpleConnector conn, ArRobot robot){
       if (!conn.connectRobot(robot)){
         System.err.println("Could not connect to robot, exiting.\n");
@@ -36,47 +57,72 @@ public class TantBug {
     return true;
   }
 
+
+  public static void sonnarMap(ArRobot robot){
+    double x = robot.getX();
+    double y = -robot.getY();
+
+    for(int i =0;i<robot.getNumSonar();i++){
+      ArSensorReading sonar = robot.getSonarReading(i);
+      long distance = sonar.getRange();
+      System.out.println(i +": "+ sonar.getX());
+      System.out.println(i +": "+ sonar.getY());
+      double theta = (robot.getTh() + sonar.getSensorTh());
+
+    }
+  }
+
+
+
   public static void main(String[] argv) {
-    System.out.println("Starting TantBug Algorithm");
+    System.out.println("Starting TangBug Algorithm");
 
-    int finalX = argv[0];
-    int finalY = argv[1];
+    // Posição final do robo
+    int finalX = Integer.parseInt(argv[0]);
+    int finalY = Integer.parseInt(argv[1]);
 
+    
+
+    // Inicializando o Aria
     Aria.init();
-
     ArRobot robot = new ArRobot();
     ArSimpleConnector conn = new ArSimpleConnector(argv);
 
-    if(!checkParseArgs || !connect(conn, robot)){
+    // Checa os args passados e a conexão
+    if((!checkParseArgs()) || !connect(conn, robot)){
       return;
     }
+    
+    // Inicializa os sensores
+    ArSonarDevice sonar = new ArSonarDevice();
+    robot.addRangeDevice(sonar);
+    ArBumpers bumpers = new ArBumpers();
+    robot.addRangeDevice(bumpers);
+
+
+    ArActionStallRecover recover = new ArActionStallRecover();
+    robot.addAction(recover, 100);
+
+    // Algoritmo do robo
+    /* ------------------------------------------ CODAR AQUI ------------------------------ */
     robot.runAsync(true);
+
     robot.lock();
-    System.out.println("Sending command to move forward 1 meter...");
     robot.enableMotors();
     robot.move(1000);
     robot.unlock();
-    System.out.println("Sleeping for 5 seconds...");
-    ArUtil.sleep(5000);
+    wait(robot);
     robot.lock();
-    System.out.println("Sending command to rotate 90 degrees...");
-    robot.setHeading(90);
+    ArSensorReading sonarr = robot.getSonarReading(0);
+    System.out.println("x: "+ sonarr.getX());
+    System.out.println("y: "+ sonarr.getY());
     robot.unlock();
-    System.out.println("Sleeping for 5 seconds...");
-    ArUtil.sleep(5000);
+    System.out.println("roboX: " + robot.getX());
+    System.out.println("roboY: " + robot.getY());
+   
+    wait(robot);
     robot.lock();
-    getPose(robot); 
-    ArPose p = robot.getPose();
-    double[] xout = {0};
-    double[] yout = {0};
-    double[] thout = {0};
-    p.getPose(xout, yout, thout);
-    robot.unlock();
-    robot.lock();
-    System.out.println("exiting.");
     robot.stopRunning(true);
-    robot.unlock();
-    robot.lock();
     robot.disconnect();
     robot.unlock();
     Aria.exit(0);

@@ -45,16 +45,8 @@ public class laserWander {
     }
   }
 
-  public static void main(String argv[]) {
-    System.out.println("Starting Java Laser Example");
-    
-    Aria.init(Aria.SigHandleMethod.SIGHANDLE_THREAD, true);
-    ArArgumentParser argParser = new ArArgumentParser(argv);
-    argParser.loadDefaultArguments();
-    ArRobot robot = new ArRobot("robot1", true, true, true);
-    ArRobotConnector robotConnector = new ArRobotConnector(argParser, robot);
-    ArLaserConnector laserConnector = new ArLaserConnector(argParser, robot, robotConnector);
-  
+  public static bool robotConnector(){
+
     if(!robotConnector.connectRobot())
     {   
       System.err.println("Error connecting to robot");
@@ -66,6 +58,18 @@ public class laserWander {
         System.exit(1);
       }
     }
+  }
+
+  public static void main(String argv[]) {
+    System.out.println("Starting Java Laser Example");
+    
+    Aria.init(Aria.SigHandleMethod.SIGHANDLE_THREAD, true);
+    ArArgumentParser argParser = new ArArgumentParser(argv);
+    argParser.loadDefaultArguments();
+    ArRobot robot = new ArRobot("robot1", true, true, true);
+    ArRobotConnector robotConnector = new ArRobotConnector(argParser, robot);
+    ArLaserConnector laserConnector = new ArLaserConnector(argParser, robot, robotConnector);
+  
 
     if(!Aria.parseArgs() || !argParser.checkHelp())
     {
