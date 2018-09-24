@@ -2,7 +2,7 @@ javac -classpath ../java/Aria.jar bug1.java
 
 
 
-java -cp ../java/Aria.jar:. bug1 14 15
+java -cp ../java/Aria.jar:. bug1 13300 13000
 
 
 
@@ -11,5 +11,5 @@ x: 11530.104762544544
 y: 11526.361844850766
 
 
-x: 11600
-y: 11600
+x: 13300
+y: 13000
