@@ -1,6 +1,14 @@
 import com.mobilerobots.Aria.*;
 
 public class bug1 {
+    public static final String KNRM = "\u001B[0";
+    public static final String KRED = "\u001B[31m";
+    public static final String KGRN = "\u001B[32m";
+    public static final String KYEL = "\u001B[33m";
+    public static final String KBLU = "\u001B[34m";
+    public static final String KMAG = "\u001B[35m";
+    public static final String KCYN = "\u001B[36m";
+    public static final String KWHT = "\u001B[37m";
 
     static int passo = 200;
     static char[][] mapa = new char[10000][10000];
@@ -153,7 +161,7 @@ public class bug1 {
         robot.enableMotors();
         robot.unlock();
         new Thread(() -> {
-            while (true){
+            while (true) {
                 sonnarMap(robot);
                 try {
                     Thread.sleep(200);
