@@ -23,9 +23,9 @@ public class TantBug {
 
   // Pega a posição do robo
   public static void getPose(ArRobot robot){
-    System.out.println("Robot coords: robot.getX()=" + 
+    System.out.println("Robot coords: robot.getX()=" +
     robot.getX() + ", robot.getY()=" + robot.getY() +
-     ", robot.getTh()=" + robot.getTh()); 
+     ", robot.getTh()=" + robot.getTh());
   }
 
   // Utility function not not keep sleeping everytime
@@ -81,7 +81,7 @@ public class TantBug {
     int finalX = Integer.parseInt(argv[0]);
     int finalY = Integer.parseInt(argv[1]);
 
-    
+
 
     // Inicializando o Aria
     Aria.init();
@@ -92,7 +92,7 @@ public class TantBug {
     if((!checkParseArgs()) || !connect(conn, robot)){
       return;
     }
-    
+
     // Inicializa os sensores
     ArSonarDevice sonar = new ArSonarDevice();
     robot.addRangeDevice(sonar);
@@ -119,7 +119,7 @@ public class TantBug {
     robot.unlock();
     System.out.println("roboX: " + robot.getX());
     System.out.println("roboY: " + robot.getY());
-   
+
     wait(robot);
     robot.lock();
     robot.stopRunning(true);

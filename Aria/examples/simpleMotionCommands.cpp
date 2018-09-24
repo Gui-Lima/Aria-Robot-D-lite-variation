@@ -112,7 +112,7 @@ int main(int argc, char **argv)
   robot.unlock();
   ArUtil::sleep(5000);
 
-  ArLog::log(ArLog::Normal, "simpleMotionCommands: Stopping.");
+  ArLog::log(ArLog::Nor1mal, "simpleMotionCommands: Stopping.");
   robot.lock();
   robot.stop();
   robot.unlock();

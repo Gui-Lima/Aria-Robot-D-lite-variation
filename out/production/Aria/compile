@@ -1,0 +1,15 @@
+javac -classpath ../java/Aria.jar bug1.java
+
+
+
+java -cp ../java/Aria.jar:. bug1 14 15
+
+
+
+
+x: 11530.104762544544
+y: 11526.361844850766
+
+
+x: 11600
+y: 11600
