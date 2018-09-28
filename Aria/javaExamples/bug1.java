@@ -13,6 +13,7 @@ public class bug1 {
     static int passo = 200;
     static char[][] mapa = new char[10000][10000];
     static int prevPosx,prevPosy,prevPosth;
+    static ArPose prevPos;
 
 
     // Carrega a biblioteca que precisa para rodar
@@ -122,6 +123,19 @@ public class bug1 {
         return;
     }
 
+    public static void moveLeft(ArRobot robot, int i){
+        wander(robot, new ArPose(((int)(robot.getX()/passo)+i)*passo, robot.getY()));
+    }
+    public static void moveRight(ArRobot robot, int i){
+        wander(robot, new ArPose(((int)(robot.getX()/passo)-i)*passo, robot.getY()));
+    }
+    public static void moveUp(ArRobot robot, int i){
+        wander(robot, new ArPose(robot.getX(), ((int)(robot.getY()/passo)+i)*passo));
+    }
+    public static void moveDown(ArRobot robot, int i){
+        wander(robot, new ArPose(robot.getX(), ((int)(robot.getY()/passo)-i)*passo));
+    }
+    
 
     public static void main(String[] argv) {
         System.out.println("Starting TangBug Algorithm");
@@ -176,8 +190,12 @@ public class bug1 {
             }
         }).start();
 
-        wander(robot, goal);
+        moveLeft(robot,3);
+        moveUp(robot,8);
+        moveRight(robot,1);
+        moveDown(robot,20);
 
+        wait(robot);
         robot.stopRunning(true);
         robot.disconnect();
 
