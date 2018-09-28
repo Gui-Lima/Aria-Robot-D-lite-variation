@@ -2,7 +2,7 @@ javac -classpath ../java/Aria.jar bug1.java
 
 
 
-java -cp ../java/Aria.jar:. bug1 13300 13000
+java -cp ../java/Aria.jar:. bug1 1000 1498 0 13300 13000
 
 
 

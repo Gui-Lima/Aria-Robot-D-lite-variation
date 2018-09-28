@@ -12,6 +12,8 @@ public class bug1 {
 
     static int passo = 200;
     static char[][] mapa = new char[10000][10000];
+    static int prevPosx,prevPosy,prevPosth;
+
 
     // Carrega a biblioteca que precisa para rodar
     static {
@@ -87,7 +89,8 @@ public class bug1 {
         if (sonar.getRange() < 5000) {
             mapa[5000 + (int) (sonar.getY() / passo)][5000 + (int) (sonar.getX() / passo)] = '#';
         }
-        mapa[5000 + (int) (sonar.getYTaken() / passo)][5000 + (int) (sonar.getXTaken() / passo)] = '.';
+        mapa[prevPosy][prevPosx] = '.';
+        mapa[5000 + (int) (sonar.getYTaken() / passo)][5000 + (int) (sonar.getXTaken() / passo)] = 'R';
     }
 
     public static void sonnarMap(ArRobot robot) {
@@ -108,8 +111,6 @@ public class bug1 {
         robot.move(robot.findDistanceTo(pose));
         robot.unlock();
         wait(robot);
-
-        System.out.println(robot.isFrontBumperTriggered());
     }
 
     // Utility function not not keep sleeping everytime
@@ -125,18 +126,21 @@ public class bug1 {
     public static void main(String[] argv) {
         System.out.println("Starting TangBug Algorithm");
 
-        // Posição final do robo
-        int finalX = Integer.parseInt(argv[0]);
-        int finalY = Integer.parseInt(argv[1]);
-        ArPose goal = new ArPose(finalX, finalY);
-
         // Inicializando o Aria
         Aria.init();
         ArRobot robot = new ArRobot();
         ArSimpleConnector conn = new ArSimpleConnector(argv);
 
         //Ajustando coordenadas do robô para coordenadas globais
-        robot.moveTo(new ArPose(1000, 1498, 0));
+        prevPosx = Integer.parseInt(argv[0]);
+        prevPosy = Integer.parseInt(argv[1]);
+        prevPosth = Integer.parseInt(argv[2]);
+        robot.moveTo(new ArPose(Integer.parseInt(argv[0]), Integer.parseInt(argv[1]), Integer.parseInt(argv[2])));
+
+        // Posição final do robo
+        int finalX = Integer.parseInt(argv[3]);
+        int finalY = Integer.parseInt(argv[4]);
+        ArPose goal = new ArPose(finalX, finalY);
 
         // Checa os args passados e a conexão
         if ((!checkParseArgs()) || !connect(conn, robot)) {
