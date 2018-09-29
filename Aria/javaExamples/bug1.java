@@ -10,8 +10,10 @@ public class bug1 {
     public static final String KCYN = "\u001B[36m";
     public static final String KWHT = "\u001B[37m";
 
-    static int passo = 200;
-    static char[][] mapa = new char[10000][10000];
+    static int passo = 300;
+    static int mapsize = 1000;
+    static char[][] mapa = new char[mapsize][mapsize];
+    static int[][] dist = new int[mapsize][mapsize];
     static int prevPosx,prevPosy,prevPosth;
     static ArPose prevPos;
 
@@ -42,6 +44,11 @@ public class bug1 {
                 mapa[i][j] = '?';
             }
         }
+        for (int i = 0; i < dist.length; i++) {
+            for (int j = 0; j < dist.length; j++) {
+                dist[i][j] = 999;
+            }
+        }
     }
 
 
@@ -65,12 +72,12 @@ public class bug1 {
             if (x > 0) {
                 for (int j = 1; j < x; j++) {
                     f = (int) (aux * j);
-                    mapa[5000 + f + (int) (sonar.getYTaken() / passo)][5000 + j + (int) (sonar.getXTaken() / passo)] = '.';
+                    mapa[(mapsize/2) + f + (int) (sonar.getYTaken() / passo)][(mapsize/2) + j + (int) (sonar.getXTaken() / passo)] = '.';
                 }
             } else {
                 for (int j = -1; j > x; j--) {
                     f = (int) (aux * j);
-                    mapa[5000 + f + (int) (sonar.getYTaken() / passo)][5000 + j + (int) (sonar.getXTaken() / passo)] = '.';
+                    mapa[(mapsize/2) + f + (int) (sonar.getYTaken() / passo)][(mapsize/2) + j + (int) (sonar.getXTaken() / passo)] = '.';
                 }
             }
         } else {
@@ -78,20 +85,22 @@ public class bug1 {
             if (y > 0) {
                 for (int j = 1; j < y; j++) {
                     f = (int) (aux * j);
-                    mapa[5000 + j + (int) (sonar.getYTaken() / passo)][5000 + f + (int) (sonar.getXTaken() / passo)] = '.';
+                    mapa[(mapsize/2) + j + (int) (sonar.getYTaken() / passo)][(mapsize/2) + f + (int) (sonar.getXTaken() / passo)] = '.';
                 }
             } else {
                 for (int j = -1; j > y; j--) {
                     f = (int) (aux * j);
-                    mapa[5000 + j + (int) (sonar.getYTaken() / passo)][5000 + f + (int) (sonar.getXTaken() / passo)] = '.';
+                    mapa[(mapsize/2) + j + (int) (sonar.getYTaken() / passo)][(mapsize/2) + f + (int) (sonar.getXTaken() / passo)] = '.';
                 }
             }
         }
         if (sonar.getRange() < 5000) {
-            mapa[5000 + (int) (sonar.getY() / passo)][5000 + (int) (sonar.getX() / passo)] = '#';
+            mapa[(mapsize/2) + (int) (sonar.getY() / passo)][(mapsize/2) + (int) (sonar.getX() / passo)] = '#';
         }
         mapa[prevPosy][prevPosx] = '.';
-        mapa[5000 + (int) (sonar.getYTaken() / passo)][5000 + (int) (sonar.getXTaken() / passo)] = 'R';
+        prevPosx = (int) (sonar.getXTaken() / passo);
+        prevPosy = (int) (sonar.getYTaken() / passo);
+        mapa[(mapsize/2) + (int) (sonar.getYTaken() / passo)][(mapsize/2) + (int) (sonar.getXTaken() / passo)] = 'R';
     }
 
     public static void sonnarMap(ArRobot robot) {
@@ -135,7 +144,35 @@ public class bug1 {
     public static void moveDown(ArRobot robot, int i){
         wander(robot, new ArPose(robot.getX(), ((int)(robot.getY()/passo)-i)*passo));
     }
-    
+
+    public static int fillMap(int x, int y,int xf, int yf){
+        if(x == xf && y == yf){
+            dist[xf][yf] = 0;
+            return 0+1;
+        }
+        int up = 999; int right = 999; int down = 999; int left = 999;
+        int self = dist[x][y];
+        boolean hasup = true; boolean hasright = true; boolean hasdown = true; boolean hasleft = true;
+        if(x==0){hasleft = false;}
+        if(x==mapsize-1){hasright = false;}
+        if(y==0){hasup = false;}
+        if(y==mapsize-1){hasdown = false;}
+
+        if(hasup){
+            up = fillMap(x, y-1, xf, yf);
+        }if(hasright){
+            right = fillMap(x+1, y, xf, yf);
+        }if(hasdown){
+            down = fillMap(x, y+1, xf, yf);
+        }if(hasleft){
+            left = fillMap(x-1, y, xf, yf);
+        }
+
+        int min = Math.min(up, Math.min(right, Math.min(down, Math.min(left, self))));
+        dist[x][y] = min;
+        return min + 1;
+    }
+
 
     public static void main(String[] argv) {
         System.out.println("Starting TangBug Algorithm");
@@ -146,8 +183,8 @@ public class bug1 {
         ArSimpleConnector conn = new ArSimpleConnector(argv);
 
         //Ajustando coordenadas do robô para coordenadas globais
-        prevPosx = Integer.parseInt(argv[0]);
-        prevPosy = Integer.parseInt(argv[1]);
+        prevPosx = Integer.parseInt(argv[0])/passo;
+        prevPosy = Integer.parseInt(argv[1])/passo;
         prevPosth = Integer.parseInt(argv[2]);
         robot.moveTo(new ArPose(Integer.parseInt(argv[0]), Integer.parseInt(argv[1]), Integer.parseInt(argv[2])));
 
@@ -155,6 +192,8 @@ public class bug1 {
         int finalX = Integer.parseInt(argv[3]);
         int finalY = Integer.parseInt(argv[4]);
         ArPose goal = new ArPose(finalX, finalY);
+        int goalMapx = (int) (Integer.parseInt(argv[3])/passo);
+        int goalMapy = (int) (Integer.parseInt(argv[4])/passo);
 
         // Checa os args passados e a conexão
         if ((!checkParseArgs()) || !connect(conn, robot)) {
@@ -190,22 +229,28 @@ public class bug1 {
             }
         }).start();
 
-        moveLeft(robot,3);
-        moveUp(robot,8);
-        moveRight(robot,1);
-        moveDown(robot,20);
+        moveLeft(robot,2);
 
         wait(robot);
         robot.stopRunning(true);
         robot.disconnect();
 
-        ArUtil.sleep(100);
-        for (int i = 0; i < 50; i++) {
-            for (int j = 0; j < 50; j++) {
-                System.out.print(mapa[4990 + i][4990 + j]);
-            }
-            System.out.println("");
-        }
+//        fillMap(20,20,150,150);
+//        System.out.println("adada");
+//        for(int i=0;i<1000;i++){
+//            for (int j=0;j<1000;j++){
+//                System.out.print(String.format("%04d ", dist[j][i]));
+//            }
+//            System.out.println();
+//        }
+
+//        ArUtil.sleep(100);
+//        for (int i = 0; i < 50; i++) {
+//            for (int j = 0; j < 50; j++) {
+//                System.out.print(mapa[mapsize/2 - 25 + i][mapsize/2 - 15 + j]);
+//            }
+//            System.out.println("");
+//        }
 
         Aria.exit(0);
 
