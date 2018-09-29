@@ -159,13 +159,17 @@ public class bug1 {
         if(y==mapsize-1){hasdown = false;}
 
         if(hasup){
-            up = fillMap(x, y-1, xf, yf);
+            if (dist[x][y-1]>self)
+                up = fillMap(x, y-1, xf, yf);
         }if(hasright){
-            right = fillMap(x+1, y, xf, yf);
+            if (dist[x+1][y]>self)
+                right = fillMap(x+1, y, xf, yf);
         }if(hasdown){
-            down = fillMap(x, y+1, xf, yf);
+            if (dist[x][y+1]>self)
+                down = fillMap(x, y+1, xf, yf);
         }if(hasleft){
-            left = fillMap(x-1, y, xf, yf);
+            if (dist[x-1][y]>self)
+                left = fillMap(x-1, y, xf, yf);
         }
 
         int min = Math.min(up, Math.min(right, Math.min(down, Math.min(left, self))));
