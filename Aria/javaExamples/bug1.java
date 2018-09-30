@@ -1,4 +1,6 @@
 import com.mobilerobots.Aria.*;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class bug1 {
     public static final String KNRM = "\u001B[0";
@@ -11,11 +13,12 @@ public class bug1 {
     public static final String KWHT = "\u001B[37m";
 
     static int passo = 300;
-    static int mapsize = 1000;
+    static int mapsize = 250;
     static char[][] mapa = new char[mapsize][mapsize];
     static int[][] dist = new int[mapsize][mapsize];
     static int prevPosx,prevPosy,prevPosth;
     static ArPose prevPos;
+    static ArrayList<Par> buffer = new ArrayList<Par>();
 
 
     // Carrega a biblioteca que precisa para rodar
@@ -132,25 +135,26 @@ public class bug1 {
         return;
     }
 
-    public static void moveLeft(ArRobot robot, int i){
+    public static void moveRight(ArRobot robot, int i){
         wander(robot, new ArPose(((int)(robot.getX()/passo)+i)*passo, robot.getY()));
     }
-    public static void moveRight(ArRobot robot, int i){
+    public static void moveLeft(ArRobot robot, int i){
         wander(robot, new ArPose(((int)(robot.getX()/passo)-i)*passo, robot.getY()));
     }
     public static void moveUp(ArRobot robot, int i){
-        wander(robot, new ArPose(robot.getX(), ((int)(robot.getY()/passo)+i)*passo));
+        wander(robot, new ArPose(robot.getX(), (((int)(robot.getY()/passo)+i)*passo)+(int)robot.getRobotRadius()));
     }
     public static void moveDown(ArRobot robot, int i){
-        wander(robot, new ArPose(robot.getX(), ((int)(robot.getY()/passo)-i)*passo));
+        wander(robot, new ArPose(robot.getX(), (((int)(robot.getY()/passo)-i)*passo)+(int)robot.getRobotRadius()));
     }
 
-    public static int fillMap(int x, int y,int xf, int yf){
+    public static void fillMap(int x, int y,int xf, int yf){
+        boolean isEnd = false;
         if(x == xf && y == yf){
             dist[xf][yf] = 0;
-            return 0+1;
+            isEnd = true;
         }
-        int up = 999; int right = 999; int down = 999; int left = 999;
+        int up = 99999; int right = 99999; int down = 99999; int left = 99999;
         int self = dist[x][y];
         boolean hasup = true; boolean hasright = true; boolean hasdown = true; boolean hasleft = true;
         if(x==0){hasleft = false;}
@@ -158,23 +162,117 @@ public class bug1 {
         if(y==0){hasup = false;}
         if(y==mapsize-1){hasdown = false;}
 
-        if(hasup){
-            if (dist[x][y-1]>self)
-                up = fillMap(x, y-1, xf, yf);
-        }if(hasright){
-            if (dist[x+1][y]>self)
-                right = fillMap(x+1, y, xf, yf);
-        }if(hasdown){
-            if (dist[x][y+1]>self)
-                down = fillMap(x, y+1, xf, yf);
-        }if(hasleft){
-            if (dist[x-1][y]>self)
-                left = fillMap(x-1, y, xf, yf);
+        if(hasup && dist[x][y-1] != -1){
+            up = dist[x][y-1];
+        }if(hasright && dist[x+1][y] != -1){
+            right = dist[x+1][y];
+        }if(hasdown && dist[x][y+1] != -1){
+            down = dist[x][y+1];
+        }if(hasleft && dist[x-1][y] != -1){
+            left = dist[x-1][y];
         }
 
-        int min = Math.min(up, Math.min(right, Math.min(down, Math.min(left, self))));
-        dist[x][y] = min;
-        return min + 1;
+        if(!isEnd) {
+            int min = Math.min(up, Math.min(right, Math.min(down, Math.min(left, self))));
+            dist[x][y] = min + 1;
+            self = min + 1;
+        }
+
+        if(hasup){
+            if (dist[x][y-1]>self && dist[x][y-1]!=-1) {
+                buffer.add(new Par(x, y-1));
+            }
+        }if(hasright){
+            if (dist[x+1][y]>self && dist[x+1][y]!=-1) {
+                int[] toAdd = new int[2];
+                buffer.add(new Par(x+1, y));
+            }
+        }if(hasdown){
+            if (dist[x][y+1]>self && dist[x][y+1]!=-1) {
+                buffer.add(new Par(x, y+1));
+            }
+        }if(hasleft){
+            if (dist[x-1][y]>self && dist[x-1][y]!=-1) {
+                buffer.add(new Par(x-1, y));
+            }
+        }
+    }
+
+    public static void update(ArRobot robot, int x, int y){
+        for(int i=0;i<mapsize;i++){
+            for (int j=0;j<mapsize;j++){
+                dist[i][j] = 99999;
+                if(mapa[j][i] == '#'){
+                    dist[i][j] = -1;
+                }
+            }
+        }
+        System.out.println("is it tois?");
+        Par next;
+        buffer.add(new Par(x,y));
+        int t = 0;
+        while(!buffer.isEmpty()){
+            next = buffer.remove(0);
+            buffer.removeAll(Collections.singleton(next));
+            if(t%1000==0)
+                ArUtil.sleep(1);
+            t++;
+            fillMap(next.x,next.y,x,y);
+        }
+        System.out.println("e tois");
+//        System.out.println("adada");
+//        for(int i=0;i<20;i++){
+//            for (int j=0;j<20;j++){
+//                System.out.print(String.format("%05d ", dist[125+j][120+i]));
+//            }
+//            System.out.println();
+//        }
+//        System.out.println("-");
+    }
+
+    public static int go(ArRobot robot){
+        robot.lock();
+        int x = (int)(robot.getX()/passo) + (mapsize/2);
+        int y = (int)(robot.getY()/passo) + (mapsize/2);
+        robot.unlock();
+        int up = 99999; int right = 99999; int down = 99999; int left = 99999;
+        boolean hasup = true; boolean hasright = true; boolean hasdown = true; boolean hasleft = true;
+        if(x==0){hasleft = false;}
+        if(x==mapsize-1){hasright = false;}
+        if(y==0){hasup = false;}
+        if(y==mapsize-1){hasdown = false;}
+        if(hasup && dist[x][y-1] != -1){
+            up = dist[x][y-1];
+        }if(hasright && dist[x+1][y] != -1){
+            right = dist[x+1][y];
+        }if(hasdown && dist[x][y+1] != -1){
+            down = dist[x][y+1];
+        }if(hasleft && dist[x-1][y] != -1){
+            left = dist[x-1][y];
+        }
+        int min = Math.min(up, Math.min(right, Math.min(down, left)));
+        if(min==up){
+            System.out.println("up");
+            moveUp(robot,1);
+            wait(robot);
+            return 1;
+        }else if(min==right){
+            System.out.println("right");
+            moveRight(robot, 1);
+            wait(robot);
+            return 2;
+        }else if(min==down){
+            System.out.println("down");
+            moveDown(robot, 1);
+            wait(robot);
+            return 3;
+        }else if(min==left){
+            System.out.println("left");
+            moveLeft(robot,1);
+            wait(robot);
+            return 4;
+        }
+        return -1;
     }
 
 
@@ -196,8 +294,8 @@ public class bug1 {
         int finalX = Integer.parseInt(argv[3]);
         int finalY = Integer.parseInt(argv[4]);
         ArPose goal = new ArPose(finalX, finalY);
-        int goalMapx = (int) (Integer.parseInt(argv[3])/passo);
-        int goalMapy = (int) (Integer.parseInt(argv[4])/passo);
+        int goalMapx = (int) (Integer.parseInt(argv[3])/passo) + (mapsize/2);
+        int goalMapy = (int) (Integer.parseInt(argv[4])/passo) + (mapsize/2);
 
         // Checa os args passados e a conexão
         if ((!checkParseArgs()) || !connect(conn, robot)) {
@@ -212,9 +310,6 @@ public class bug1 {
         robot.addRangeDevice(bumpers);
 
 
-        ArActionStallRecover recover = new ArActionStallRecover();
-        robot.addAction(recover, 200);
-
         // Algoritmo do robo
         /* ------------------------------------------ CODAR AQUI ------------------------------ */
         robot.runAsync(true);
@@ -225,7 +320,7 @@ public class bug1 {
             while (true) {
                 sonnarMap(robot);
                 try {
-                    Thread.sleep(200);
+                    Thread.sleep(50);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -233,30 +328,92 @@ public class bug1 {
             }
         }).start();
 
-        moveLeft(robot,2);
+        new Thread(() -> {
+            while (true) {
+                update(robot, goalMapx, goalMapy);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }).start();
+
+        robot.setHeading(180);
+        wait(robot);
+        update(robot, goalMapx, goalMapy);
+        while (((int)(robot.getX()/passo) + (mapsize/2))!=goalMapx && ((int)(robot.getY()/passo) + (mapsize/2))!=goalMapy){
+            int initx = ((int)(robot.getX()/passo) + (mapsize/2));
+            int inity = ((int)(robot.getY()/passo) + (mapsize/2));
+            int dir = go(robot);
+            wait(robot);
+            if (((int)(robot.getX()/passo) + (mapsize/2))==initx && ((int)(robot.getY()/passo) + (mapsize/2))==inity){
+                robot.move(-100);
+                wait(robot);
+                robot.setHeading(180);
+                wait(robot);
+                update(robot, goalMapx, goalMapy);
+                if(dir==1){
+                    dist[initx][inity] = -1;
+                    dist[initx][inity-1] = -1;
+                }else if(dir==2){
+                    dist[initx][inity] = -1;
+                    dist[initx+1][inity] = -1;
+                }else if(dir==3){
+                    dist[initx][inity] = -1;
+                    dist[initx][inity+1] = -1;
+                }else if(dir==4){
+                    dist[initx][inity] = -1;
+                    dist[initx-1][inity] = -1;
+                }
+            }
+        }
+
+        System.out.println(goalMapx+" , "+goalMapy);
 
         wait(robot);
+        update(robot, goalMapx, goalMapy);
         robot.stopRunning(true);
         robot.disconnect();
 
-//        fillMap(20,20,150,150);
-//        System.out.println("adada");
-//        for(int i=0;i<1000;i++){
-//            for (int j=0;j<1000;j++){
-//                System.out.print(String.format("%04d ", dist[j][i]));
-//            }
-//            System.out.println();
-//        }
-
-//        ArUtil.sleep(100);
-//        for (int i = 0; i < 50; i++) {
-//            for (int j = 0; j < 50; j++) {
-//                System.out.print(mapa[mapsize/2 - 25 + i][mapsize/2 - 15 + j]);
-//            }
-//            System.out.println("");
-//        }
+        System.out.println("adada");
+        for(int i=0;i<20;i++){
+            for (int j=0;j<20;j++){
+                System.out.print(String.format("%05d ", dist[125+j][120+i]));
+            }
+            System.out.println();
+        }
+        System.out.println("-");
 
         Aria.exit(0);
 
+    }
+}
+
+class Par{
+    public int x;
+    public int y;
+
+    public Par(int x, int y){
+        this.x = x;
+        this.y = y;
+    }
+
+    public boolean pequals (Par p){
+        if(this.x == p.x && this.y == p.y){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public boolean equals (Object o){
+        if (o instanceof Par){
+            return this.pequals((Par) o);
+        }else{
+            return false;
+        }
     }
 }
