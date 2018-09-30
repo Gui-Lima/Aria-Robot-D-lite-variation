@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class bug1 {
-    public static final String KNRM = "\u001B[0";
+    public static final String KNRM = "\u001B[0m";
     public static final String KRED = "\u001B[31m";
     public static final String KGRN = "\u001B[32m";
     public static final String KYEL = "\u001B[33m";
@@ -19,6 +19,7 @@ public class bug1 {
     static int prevPosx,prevPosy,prevPosth;
     static ArPose prevPos;
     static ArrayList<Par> buffer = new ArrayList<Par>();
+    static boolean[][] correction = new boolean[mapsize][mapsize];
 
 
     // Carrega a biblioteca que precisa para rodar
@@ -205,6 +206,9 @@ public class bug1 {
                 if(mapa[j][i] == '#'){
                     dist[i][j] = -1;
                 }
+                if(correction[i][j]){
+                    dist[i][j] = -1;
+                }
             }
         }
         System.out.println("is it tois?");
@@ -214,7 +218,7 @@ public class bug1 {
         while(!buffer.isEmpty()){
             next = buffer.remove(0);
             buffer.removeAll(Collections.singleton(next));
-            if(t%1000==0)
+            if(t%500==0)
                 ArUtil.sleep(1);
             t++;
             fillMap(next.x,next.y,x,y);
@@ -241,34 +245,52 @@ public class bug1 {
         if(x==mapsize-1){hasright = false;}
         if(y==0){hasup = false;}
         if(y==mapsize-1){hasdown = false;}
-        if(hasup && dist[x][y-1] != -1){
-            up = dist[x][y-1];
+        if(hasup && dist[x][y+1] != -1){
+            up = dist[x][y+1];
         }if(hasright && dist[x+1][y] != -1){
             right = dist[x+1][y];
-        }if(hasdown && dist[x][y+1] != -1){
-            down = dist[x][y+1];
+        }if(hasdown && dist[x][y-1] != -1){
+            down = dist[x][y-1];
         }if(hasleft && dist[x-1][y] != -1){
             left = dist[x-1][y];
         }
         int min = Math.min(up, Math.min(right, Math.min(down, left)));
+        System.out.println(KYEL + min + KNRM);
+        System.out.println("up:"+up+" right:"+right+" down:"+down+" left:"+left);
         if(min==up){
-            System.out.println("up");
-            moveUp(robot,1);
+            int a = 0;
+            while(dist[x][y-a] == dist[x][y-a-1]+1){
+                a++;
+            }
+            System.out.println("up " + a);
+            moveUp(robot,a);
             wait(robot);
             return 1;
         }else if(min==right){
-            System.out.println("right");
-            moveRight(robot, 1);
+            int a = 0;
+            while(dist[x+a][y] == dist[x+a+1][y]+1){
+                a++;
+            }
+            System.out.println("right " + a);
+            moveRight(robot, a);
             wait(robot);
             return 2;
         }else if(min==down){
-            System.out.println("down");
-            moveDown(robot, 1);
+            int a = 0;
+            while(dist[x][y+a] == dist[x][y+a+1]+1){
+                a++;
+            }
+            System.out.println("down " + a);
+            moveDown(robot, a);
             wait(robot);
             return 3;
         }else if(min==left){
-            System.out.println("left");
-            moveLeft(robot,1);
+            int a = 0;
+            while(dist[x-a][y] == dist[x-a-1][y]+1){
+                a++;
+            }
+            System.out.println("left " + a);
+            moveLeft(robot,a);
             wait(robot);
             return 4;
         }
@@ -328,18 +350,6 @@ public class bug1 {
             }
         }).start();
 
-        new Thread(() -> {
-            while (true) {
-                update(robot, goalMapx, goalMapy);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }).start();
-
         robot.setHeading(180);
         wait(robot);
         update(robot, goalMapx, goalMapy);
@@ -349,26 +359,42 @@ public class bug1 {
             int dir = go(robot);
             wait(robot);
             if (((int)(robot.getX()/passo) + (mapsize/2))==initx && ((int)(robot.getY()/passo) + (mapsize/2))==inity){
-                robot.move(-100);
+                robot.move(-passo);
                 wait(robot);
                 robot.setHeading(180);
                 wait(robot);
-                update(robot, goalMapx, goalMapy);
                 if(dir==1){
-                    dist[initx][inity] = -1;
-                    dist[initx][inity-1] = -1;
+                    //correction[initx][inity] = true;
+                    correction[initx][inity-1] = true;
                 }else if(dir==2){
-                    dist[initx][inity] = -1;
-                    dist[initx+1][inity] = -1;
+                    //correction[initx][inity] = true;
+                    correction[initx+1][inity] = true;
                 }else if(dir==3){
-                    dist[initx][inity] = -1;
-                    dist[initx][inity+1] = -1;
+                    //correction[initx][inity] = true;
+                    correction[initx][inity+1] = true;
                 }else if(dir==4){
-                    dist[initx][inity] = -1;
-                    dist[initx-1][inity] = -1;
+                    //correction[initx][inity] = true;
+                    correction[initx-1][inity] = true;
                 }
+                update(robot, goalMapx, goalMapy);
             }
+            for(int i=0;i<20;i++){
+                for (int j=0;j<20;j++){
+                    if((int)(robot.getX()/passo) + (mapsize/2) == 125+j && (int)(robot.getY()/passo) + (mapsize/2) == 120+i){
+                        System.out.print(KCYN + "RRR " + KNRM);
+                    }else if(dist[125 + j][120 + i] == -1){
+                        System.out.print(KRED + String.format("%03d ", dist[125 + j][120 + i]) + KNRM);
+                    }else {
+                        System.out.print(String.format("%03d ", dist[125 + j][120 + i]));
+                    }
+                }
+                System.out.println();
+            }
+            System.out.println("-");
         }
+
+        moveRight(robot, 50);
+        wait(robot);
 
         System.out.println(goalMapx+" , "+goalMapy);
 
@@ -380,7 +406,11 @@ public class bug1 {
         System.out.println("adada");
         for(int i=0;i<20;i++){
             for (int j=0;j<20;j++){
-                System.out.print(String.format("%05d ", dist[125+j][120+i]));
+                if(dist[125 + j][120 + i] == -1){
+                    System.out.print(KRED + String.format("%05d ", dist[125 + j][120 + i]) + KNRM);
+                }else {
+                    System.out.print(String.format("%05d ", dist[125 + j][120 + i]));
+                }
             }
             System.out.println();
         }
