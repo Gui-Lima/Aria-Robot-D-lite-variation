@@ -137,16 +137,20 @@ public class bug1 {
     }
 
     public static void moveRight(ArRobot robot, int i){
-        wander(robot, new ArPose(((int)(robot.getX()/passo)+i)*passo, robot.getY()));
+        wander(robot, new ArPose((((int)(robot.getX()/passo)+i)*passo)+(int)robot.getRobotRadius(), robot.getY()));
+        wait(robot);
     }
     public static void moveLeft(ArRobot robot, int i){
-        wander(robot, new ArPose(((int)(robot.getX()/passo)-i)*passo, robot.getY()));
+        wander(robot, new ArPose((((int)(robot.getX()/passo)-i)*passo)+(int)robot.getRobotRadius(), robot.getY()));
+        wait(robot);
     }
     public static void moveUp(ArRobot robot, int i){
         wander(robot, new ArPose(robot.getX(), (((int)(robot.getY()/passo)+i)*passo)+(int)robot.getRobotRadius()));
+        wait(robot);
     }
     public static void moveDown(ArRobot robot, int i){
         wander(robot, new ArPose(robot.getX(), (((int)(robot.getY()/passo)-i)*passo)+(int)robot.getRobotRadius()));
+        wait(robot);
     }
 
     public static void fillMap(int x, int y,int xf, int yf){
@@ -160,15 +164,15 @@ public class bug1 {
         boolean hasup = true; boolean hasright = true; boolean hasdown = true; boolean hasleft = true;
         if(x==0){hasleft = false;}
         if(x==mapsize-1){hasright = false;}
-        if(y==0){hasup = false;}
-        if(y==mapsize-1){hasdown = false;}
+        if(y==mapsize-1){hasup = false;}
+        if(y==0){hasdown = false;}
 
-        if(hasup && dist[x][y-1] != -1){
-            up = dist[x][y-1];
+        if(hasup && dist[x][y+1] != -1){
+            up = dist[x][y+1];
         }if(hasright && dist[x+1][y] != -1){
             right = dist[x+1][y];
-        }if(hasdown && dist[x][y+1] != -1){
-            down = dist[x][y+1];
+        }if(hasdown && dist[x][y-1] != -1){
+            down = dist[x][y-1];
         }if(hasleft && dist[x-1][y] != -1){
             left = dist[x-1][y];
         }
@@ -180,8 +184,8 @@ public class bug1 {
         }
 
         if(hasup){
-            if (dist[x][y-1]>self && dist[x][y-1]!=-1) {
-                buffer.add(new Par(x, y-1));
+            if (dist[x][y+1]>self && dist[x][y+1]!=-1) {
+                buffer.add(new Par(x, y+1));
             }
         }if(hasright){
             if (dist[x+1][y]>self && dist[x+1][y]!=-1) {
@@ -189,8 +193,8 @@ public class bug1 {
                 buffer.add(new Par(x+1, y));
             }
         }if(hasdown){
-            if (dist[x][y+1]>self && dist[x][y+1]!=-1) {
-                buffer.add(new Par(x, y+1));
+            if (dist[x][y-1]>self && dist[x][y-1]!=-1) {
+                buffer.add(new Par(x, y-1));
             }
         }if(hasleft){
             if (dist[x-1][y]>self && dist[x-1][y]!=-1) {
@@ -218,7 +222,7 @@ public class bug1 {
         while(!buffer.isEmpty()){
             next = buffer.remove(0);
             buffer.removeAll(Collections.singleton(next));
-            if(t%500==0)
+            if(t%300==0)
                 ArUtil.sleep(1);
             t++;
             fillMap(next.x,next.y,x,y);
@@ -243,8 +247,8 @@ public class bug1 {
         boolean hasup = true; boolean hasright = true; boolean hasdown = true; boolean hasleft = true;
         if(x==0){hasleft = false;}
         if(x==mapsize-1){hasright = false;}
-        if(y==0){hasup = false;}
-        if(y==mapsize-1){hasdown = false;}
+        if(y==mapsize-1){hasup = false;}
+        if(y==0){hasdown = false;}
         if(hasup && dist[x][y+1] != -1){
             up = dist[x][y+1];
         }if(hasright && dist[x+1][y] != -1){
@@ -259,11 +263,12 @@ public class bug1 {
         System.out.println("up:"+up+" right:"+right+" down:"+down+" left:"+left);
         if(min==up){
             int a = 0;
-            while(dist[x][y-a] == dist[x][y-a-1]+1){
+            while(dist[x][y+a] == dist[x][y+a+1]+1){
                 a++;
             }
             System.out.println("up " + a);
             moveUp(robot,a);
+            robot.move(-5);
             wait(robot);
             return 1;
         }else if(min==right){
@@ -273,15 +278,17 @@ public class bug1 {
             }
             System.out.println("right " + a);
             moveRight(robot, a);
+            robot.move(-5);
             wait(robot);
             return 2;
         }else if(min==down){
             int a = 0;
-            while(dist[x][y+a] == dist[x][y+a+1]+1){
+            while(dist[x][y-a] == dist[x][y-a-1]+1){
                 a++;
             }
             System.out.println("down " + a);
             moveDown(robot, a);
+            robot.move(-5);
             wait(robot);
             return 3;
         }else if(min==left){
@@ -292,6 +299,7 @@ public class bug1 {
             System.out.println("left " + a);
             moveLeft(robot,a);
             wait(robot);
+            robot.move(-5);
             return 4;
         }
         return -1;
@@ -342,7 +350,7 @@ public class bug1 {
             while (true) {
                 sonnarMap(robot);
                 try {
-                    Thread.sleep(50);
+                    Thread.sleep(150);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -350,10 +358,15 @@ public class bug1 {
             }
         }).start();
 
+        System.out.println(KMAG + goalMapx + " ; " + goalMapy + KNRM);
+
+
+        robot.setHeading(180);
+        wait(robot);
         robot.setHeading(180);
         wait(robot);
         update(robot, goalMapx, goalMapy);
-        while (((int)(robot.getX()/passo) + (mapsize/2))!=goalMapx && ((int)(robot.getY()/passo) + (mapsize/2))!=goalMapy){
+        while (((int)(robot.getX()/passo) + (mapsize/2))!=goalMapx || ((int)(robot.getY()/passo) + (mapsize/2))!=goalMapy){
             int initx = ((int)(robot.getX()/passo) + (mapsize/2));
             int inity = ((int)(robot.getY()/passo) + (mapsize/2));
             int dir = go(robot);
@@ -363,15 +376,17 @@ public class bug1 {
                 wait(robot);
                 robot.setHeading(180);
                 wait(robot);
+                robot.setHeading(180);
+                wait(robot);
                 if(dir==1){
                     //correction[initx][inity] = true;
-                    correction[initx][inity-1] = true;
+                    correction[initx][inity+1] = true;
                 }else if(dir==2){
                     //correction[initx][inity] = true;
                     correction[initx+1][inity] = true;
                 }else if(dir==3){
                     //correction[initx][inity] = true;
-                    correction[initx][inity+1] = true;
+                    correction[initx][inity-1] = true;
                 }else if(dir==4){
                     //correction[initx][inity] = true;
                     correction[initx-1][inity] = true;
@@ -393,10 +408,8 @@ public class bug1 {
             System.out.println("-");
         }
 
-        moveRight(robot, 50);
-        wait(robot);
-
-        System.out.println(goalMapx+" , "+goalMapy);
+        System.out.println(KGRN + "Chegamos na quinta-feira rapaziada" +KNRM);
+        System.out.println(KMAG + ((int)(robot.getX()/passo) + (mapsize/2)) + " ; " + ((int)(robot.getY()/passo) + (mapsize/2)) + KNRM);
 
         wait(robot);
         update(robot, goalMapx, goalMapy);

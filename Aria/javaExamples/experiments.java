@@ -2,6 +2,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class experiments{
+    public static final String KNRM = "\u001B[0m";
+    public static final String KRED = "\u001B[31m";
+    public static final String KGRN = "\u001B[32m";
+    public static final String KYEL = "\u001B[33m";
+    public static final String KBLU = "\u001B[34m";
+    public static final String KMAG = "\u001B[35m";
+    public static final String KCYN = "\u001B[36m";
+    public static final String KWHT = "\u001B[37m";
     static int mapsize = 20;
     static int[][] dist = new int[mapsize][mapsize];
     static ArrayList<Par> buffer = new ArrayList<Par>();
@@ -17,15 +25,15 @@ public class experiments{
         boolean hasup = true; boolean hasright = true; boolean hasdown = true; boolean hasleft = true;
         if(x==0){hasleft = false;}
         if(x==mapsize-1){hasright = false;}
-        if(y==0){hasup = false;}
-        if(y==mapsize-1){hasdown = false;}
+        if(y==mapsize-1){hasup = false;}
+        if(y==0){hasdown = false;}
 
-        if(hasup && dist[x][y-1] != -1){
-            up = dist[x][y-1];
+        if(hasup && dist[x][y+1] != -1){
+            up = dist[x][y+1];
         }if(hasright && dist[x+1][y] != -1){
             right = dist[x+1][y];
-        }if(hasdown && dist[x][y+1] != -1){
-            down = dist[x][y+1];
+        }if(hasdown && dist[x][y-1] != -1){
+            down = dist[x][y-1];
         }if(hasleft && dist[x-1][y] != -1){
             left = dist[x-1][y];
         }
@@ -37,8 +45,8 @@ public class experiments{
         }
 
         if(hasup){
-            if (dist[x][y-1]>self && dist[x][y-1]!=-1) {
-                buffer.add(new Par(x, y-1));
+            if (dist[x][y+1]>self && dist[x][y+1]!=-1) {
+                buffer.add(new Par(x, y+1));
             }
         }if(hasright){
             if (dist[x+1][y]>self && dist[x+1][y]!=-1) {
@@ -46,8 +54,8 @@ public class experiments{
                 buffer.add(new Par(x+1, y));
             }
         }if(hasdown){
-            if (dist[x][y+1]>self && dist[x][y+1]!=-1) {
-                buffer.add(new Par(x, y+1));
+            if (dist[x][y-1]>self && dist[x][y-1]!=-1) {
+                buffer.add(new Par(x, y-1));
             }
         }if(hasleft){
             if (dist[x-1][y]>self && dist[x-1][y]!=-1) {
@@ -76,7 +84,11 @@ public class experiments{
         System.out.println("adada");
         for(int i=0;i<mapsize;i++){
             for (int j=0;j<mapsize;j++){
-                System.out.print(String.format("%05d ", dist[j][i]));
+                if(dist[j][i] == -1){
+                    System.out.print(KRED + String.format("%05d ", dist[j][i]) + KNRM);
+                }else {
+                    System.out.print(String.format("%05d ", dist[j][i]));
+                }
             }
             System.out.println();
         }
