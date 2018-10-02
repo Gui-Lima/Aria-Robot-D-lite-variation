@@ -305,6 +305,25 @@ public class bug1 {
         return -1;
     }
 
+    public static void showSurroundings(ArRobot robot, int range){
+        int x = ((int)(robot.getX()/passo) + (mapsize/2)) - (int)(range/2) - 1;
+        int y = ((int)(robot.getY()/passo) + (mapsize/2)) - (int)(range/2) - 1;
+
+        for(int i=0;i<20;i++){
+            for (int j=0;j<20;j++){
+                if((int)(robot.getX()/passo) + (mapsize/2) == x+j && (int)(robot.getY()/passo) + (mapsize/2) == y+i){
+                    System.out.print(KCYN + "RRR " + KNRM);
+                }else if(dist[x + j][y + i] == -1){
+                    System.out.print(KRED + String.format("%03d ", dist[x + j][y + i]) + KNRM);
+                }else {
+                    System.out.print(String.format("%03d ", dist[x + j][y + i]));
+                }
+            }
+            System.out.println();
+        }
+        System.out.println("-");
+    }
+
 
     public static void main(String[] argv) {
         System.out.println("Starting TangBug Algorithm");
@@ -393,19 +412,8 @@ public class bug1 {
                 }
                 update(robot, goalMapx, goalMapy);
             }
-            for(int i=0;i<20;i++){
-                for (int j=0;j<20;j++){
-                    if((int)(robot.getX()/passo) + (mapsize/2) == 125+j && (int)(robot.getY()/passo) + (mapsize/2) == 120+i){
-                        System.out.print(KCYN + "RRR " + KNRM);
-                    }else if(dist[125 + j][120 + i] == -1){
-                        System.out.print(KRED + String.format("%03d ", dist[125 + j][120 + i]) + KNRM);
-                    }else {
-                        System.out.print(String.format("%03d ", dist[125 + j][120 + i]));
-                    }
-                }
-                System.out.println();
-            }
-            System.out.println("-");
+
+            showSurroundings(robot, 20);
         }
 
         System.out.println(KGRN + "Chegamos na quinta-feira rapaziada" +KNRM);
