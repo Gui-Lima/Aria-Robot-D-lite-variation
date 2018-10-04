@@ -109,7 +109,9 @@ public class bug1 {
 
     public static void sonnarMap(ArRobot robot) {
         for (int i = 0; i < robot.getNumSonar(); i++) {
+            robot.lock();
             ArSensorReading sonar = robot.getSonarReading(i);
+            robot.unlock();
             putInMapa(sonar);
         }
     }
@@ -222,20 +224,12 @@ public class bug1 {
         while(!buffer.isEmpty()){
             next = buffer.remove(0);
             buffer.removeAll(Collections.singleton(next));
-            if(t%300==0)
+            if(t%500==0)
                 ArUtil.sleep(1);
             t++;
             fillMap(next.x,next.y,x,y);
         }
         System.out.println("e tois");
-//        System.out.println("adada");
-//        for(int i=0;i<20;i++){
-//            for (int j=0;j<20;j++){
-//                System.out.print(String.format("%05d ", dist[125+j][120+i]));
-//            }
-//            System.out.println();
-//        }
-//        System.out.println("-");
     }
 
     public static int go(ArRobot robot){
@@ -312,9 +306,11 @@ public class bug1 {
         for(int i=0;i<20;i++){
             for (int j=0;j<20;j++){
                 if((int)(robot.getX()/passo) + (mapsize/2) == x+j && (int)(robot.getY()/passo) + (mapsize/2) == y+i){
-                    System.out.print(KCYN + "RRR " + KNRM);
+                    System.out.print(KCYN + "ROB " + KNRM);
                 }else if(dist[x + j][y + i] == -1){
-                    System.out.print(KRED + String.format("%03d ", dist[x + j][y + i]) + KNRM);
+                    System.out.print(KRED + String.format("■■■ ") + KNRM);
+                }else if(dist[x + j][y + i] == 0){
+                    System.out.print(KYEL + "GOL " + KNRM);
                 }else {
                     System.out.print(String.format("%03d ", dist[x + j][y + i]));
                 }
@@ -365,6 +361,7 @@ public class bug1 {
         robot.lock();
         robot.enableMotors();
         robot.unlock();
+
         new Thread(() -> {
             while (true) {
                 sonnarMap(robot);
@@ -378,7 +375,6 @@ public class bug1 {
         }).start();
 
         System.out.println(KMAG + goalMapx + " ; " + goalMapy + KNRM);
-
 
         robot.setHeading(180);
         wait(robot);
@@ -410,9 +406,8 @@ public class bug1 {
                     //correction[initx][inity] = true;
                     correction[initx-1][inity] = true;
                 }
-                update(robot, goalMapx, goalMapy);
             }
-
+            update(robot, goalMapx, goalMapy);
             showSurroundings(robot, 20);
         }
 
