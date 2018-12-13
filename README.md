@@ -1,7 +1,7 @@
 # PROJETOS DE SI
 
-## PROJETO I - ROBO LOUCURA
-Nesse projeto agt tem que fazer um robo chegar num lugar? Acho.
+## PROJETO I - Aria Robot
+Fazer o robo chegar num ponto do mapa Office.
 
 ### Setup
 *	Baixar o roboSim
@@ -15,7 +15,6 @@ Nesse projeto agt tem que fazer um robo chegar num lugar? Acho.
 *	Aperte w no terminal
 *	Seu robo deve começar a se mover
 
-### Começando a codar
 #### Rodando um exemplo Java
 *	Abra o MobileSim
 *	Rode um mapa
@@ -23,5 +22,3 @@ Nesse projeto agt tem que fazer um robo chegar num lugar? Acho.
 *	javac -classpath ../java/Aria.jar simple.java
 *	ubuntu  :    java -cp ../java/Aria.jar:. simple
 *	windows :    java -cp ../java/Aria.jar;. simple
-
-
