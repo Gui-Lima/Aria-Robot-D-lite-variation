@@ -1,6 +1,4 @@
-# PROJETOS DE SI
-
-## PROJETO I - Aria Robot
+## Aria Robot
 Fazer o robo chegar num ponto do mapa Office.
 
 ### Setup
